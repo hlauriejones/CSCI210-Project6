@@ -35,8 +35,8 @@ WHILE	GETC                ;gets the character
 		ADD	R3, R0, R1      ;check to see if its ascii13
         ADD R3, R0, R5      ;check to see if its ascii10
         ST R6, SIZE
-		BRz	LOWERCASE        ;if the previous instruction is 0 then go to ENDWHILE
-        ST R6, SIZE
+		BRz	LOWERCASE        ;if the previous instruction is 0 then go to LOWERCASE
+        ;ST R6, SIZE
         
 ;loads the input
 		STR	R0, R2, #0      ;puts null at the end of R0
@@ -44,6 +44,11 @@ WHILE	GETC                ;gets the character
 		ADD R0, R0, R7
 		STR R0, R4, #0
 ;loads it as uppercase
+; subtract 97 from the number if it is neg, elave it if it is pos. don't leave it
+		LD R3, CHECK
+		ADD R3, R0, R3
+		ADD R3, R3, #0
+		BRzp MOVE
         ADD R7, R0, R4
 
         ADD R2, R2, #1      ;increments R2
@@ -62,24 +67,14 @@ LOWERCASE	STR R3, R2, #0      ;stores the null character at the end after the la
 	LEA R0, ARRAY2
 	PUTS
     BRz DONE
+
+MOVE 
+	ADD R2, R2, #1
+
 	
 DONE	HALT
 
-UPPERCASE  STR R3, R7, #0	;i think we need to have a variable that keeps track of the characters in the acual name
-							;before the enter or return. This can be used to count as we go through the array so we know how many
-							;letters we need to uppercase. We add those capital letters to Array 2, then output array to at the end
-	LEA	R0, PROMPT3
-	PUTS
-	LEA R2, ARRAY
-	LDR R0, R2, #0
-	ADD R2, R2, #1
-	STR R0, R7, #0
-	ADD R7, R7, #1
-    LEA R0, ARRAY2       ;clears the input array
-	BRp UPPERCASE
-	
-    PUTS	;output ARRAY2
-    HALT
+
 
 
 ; Data Variables
@@ -88,6 +83,7 @@ RT2     .FILL       X-000A      ;ascii10
 SIZE    .FILL       #30 
 UPPER   .FILL       #-32        ;the difference in ascii numbers from lower to uppercase
 
+
 PROMPT	.STRINGZ	"Enter your name:  "
 PROMPT2 .STRINGZ    "Thank you, "
 PROMPT3 .STRINGZ	"Your name in uppercase is"
@@ -95,4 +91,6 @@ EXCL    .STRINGZ    "!"
 ARRAY	.BLKW		#30
 ARRAY2  .BLKW       #30
 
+DIFF  .BLKW 	#1
+CHECK  .FILL	#-97
 	.END
